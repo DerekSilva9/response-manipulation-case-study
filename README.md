@@ -45,9 +45,9 @@ Chromium                      →  Análise de comportamento da interface (DevTo
 ### Fluxo legítimo
 
 ```
-[Cliente]  →  POST /auth/signin          →  [Servidor]
+[Cliente]  →  POST /auth/signin         →  [Servidor]
 [Servidor] →  200 OK + JWT + JSON body  →  [Cliente]
-[Cliente]  →  Lê campo "plan" do JSON   →  Habilita/Desabilita UI
+[Cliente]  →  Lê campo "plan" do JSON  →  Habilita/Desabilita UI
 ```
 
 ### Resposta original do servidor
@@ -63,11 +63,22 @@ Chromium                      →  Análise de comportamento da interface (DevTo
 }
 ```
 
-<img width="1581" height="961" alt="image" src="https://github.com/user-attachments/assets/d26c3809-2fcf-4242-ac06-3a9de7b6997b" />
+### Evidências
 
-<img width="1213" height="821" alt="image" src="https://github.com/user-attachments/assets/37674400-c859-425e-8a4c-d7e3fef56a7b" />
-
-
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/d26c3809-2fcf-4242-ac06-3a9de7b6997b" alt="Resposta interceptada com plan alterado para plus" width="100%"/>
+      <br/>
+      <sub><b>Fig. 1</b> — Resposta do servidor após manipulação: <code>"plan": "plus"</code></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/37674400-c859-425e-8a4c-d7e3fef56a7b" alt="Burp Suite mostrando campo plan free selecionado" width="100%"/>
+      <br/>
+      <sub><b>Fig. 2</b> — Burp Suite: campo <code>"plan": "free"</code> identificado na resposta original</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -98,6 +109,21 @@ Encaminhe a resposta modificada ao navegador. O front-end processa o novo valor 
 
 ```
 Burp Suite → Forward  →  [Navegador recebe "plan": "plus"]  →  UI Premium desbloqueada
+```
+
+### Diagrama do ataque
+
+```
+[Cliente]           [Burp Suite / Proxy]          [Servidor]
+    |                        |                         |
+    |── POST /auth/signin ──>|── POST /auth/signin ───>|
+    |                        |<── 200 OK (plan:free) ──|
+    |                        |                         |
+    |                 [Edita plan:plus]                |
+    |                        |                         |
+    |<── 200 OK (plan:plus) ─|                         |
+    |                        |                         |
+[UI Premium ativada]         |                         |
 ```
 
 ---
